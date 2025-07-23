@@ -10,16 +10,22 @@ import pyautogui
 
 driver = uc.Chrome()
 try:
-    for i in range(41,10000):
+    for i in range(140,10000):
         driver.get('https://www.miuithemez.com/')
+        current_url = driver.current_url
+        if current_url.find("google_vignette"):
+            driver.get('https://www.miuithemez.com/')
         time.sleep(5)
         print(i)
         count = int(i / 8)
-        for j in range(count):
-            moreTheme = driver.find_element(By.XPATH, "//*[@id='load-more']")
-            driver.execute_script("arguments[0].scrollIntoView();", moreTheme)
-            moreTheme.click()
-            time.sleep(2)
+        try:
+            for j in range(count):
+                moreTheme = driver.find_element(By.XPATH, "//*[@id='load-more']")
+                driver.execute_script("arguments[0].scrollIntoView();", moreTheme)
+                moreTheme.click()
+                time.sleep(3)
+        except NoSuchElementException:
+            continue
         article = driver.find_element(By.XPATH, f"//*[@id='Blog1']/div[2]/article[{i}]/div/h2/a")
         url = article.get_attribute('href')
         driver.execute_script("arguments[0].scrollIntoView();", article)
@@ -43,9 +49,49 @@ try:
             downloadBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[15]/a")
             driver.execute_script("arguments[0].scrollIntoView();", downloadBtn)
         except NoSuchElementException:
-            print("The download button was not found.")
-            downloadBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[16]/a")
-            driver.execute_script("arguments[0].scrollIntoView();", downloadBtn)
+            try:
+                downloadBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[16]/a")
+                driver.execute_script("arguments[0].scrollIntoView();", downloadBtn)
+            except NoSuchElementException:
+                try:
+                    downloadBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[9]/b/a")
+                    driver.execute_script("arguments[0].scrollIntoView();", downloadBtn)
+                    downloadBtn.click()
+                    original_window = driver.current_window_handle
+                    WebDriverWait(driver, 5).until(EC.number_of_windows_to_be(2))
+                    # Switch to the new window/tab
+                    for window_handle in driver.window_handles:
+                        if window_handle != original_window:
+                            driver.close()  # Close the original window
+                            driver.switch_to.window(window_handle)
+                            break
+                    try:
+                        realDownloadLink = driver.find_element(By.XPATH, "//*[@id='downloadButton']")
+                        realDownloadLink.click()
+                        continue
+                    except NoSuchElementException:
+                        continue
+                except NoSuchElementException:
+                    try:
+                        downloadBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[8]/b/a")
+                        driver.execute_script("arguments[0].scrollIntoView();", downloadBtn)
+                        downloadBtn.click()
+                        original_window = driver.current_window_handle
+                        WebDriverWait(driver, 5).until(EC.number_of_windows_to_be(2))
+                        # Switch to the new window/tab
+                        for window_handle in driver.window_handles:
+                            if window_handle != original_window:
+                                driver.close()  # Close the original window
+                                driver.switch_to.window(window_handle)
+                                break
+                        try:
+                            realDownloadLink = driver.find_element(By.XPATH, "//*[@id='downloadButton']")
+                            realDownloadLink.click()
+                            continue
+                        except NoSuchElementException:
+                            continue
+                    except NoSuchElementException:
+                        continue
         downloadBtn.click()
         original_window = driver.current_window_handle
         WebDriverWait(driver, 5).until(EC.number_of_windows_to_be(2))
@@ -55,14 +101,23 @@ try:
                 driver.close()  # Close the original window
                 driver.switch_to.window(window_handle)
                 break
-        generateBtn = driver.find_element(By.XPATH, '//*[@id="post-body"]/p[2]/div/div/button[1]')
+        try:
+            generateBtn = driver.find_element(By.XPATH, '//*[@id="post-body"]/p[2]/div/div/button[1]')
+        except NoSuchElementException:
+            continue
         generateBtn.click()
         time.sleep(17)
-        linkBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[12]/div/button")
-        driver.execute_script("arguments[0].scrollIntoView();", linkBtn)
+        try:
+            linkBtn = driver.find_element(By.XPATH, "//*[@id='post-body']/p[12]/div/button")
+            driver.execute_script("arguments[0].scrollIntoView();", linkBtn)
+        except NoSuchElementException:
+            continue
         linkBtn.click()
-        time.sleep(5)
-        realDownloadLink = driver.find_element(By.XPATH, "//*[@id='downloadButton']")
-        realDownloadLink.click()
+        time.sleep(10)
+        try:
+            realDownloadLink = driver.find_element(By.XPATH, "//*[@id='downloadButton']")
+            realDownloadLink.click()
+        except NoSuchElementException:
+            continue
 finally:
     driver.quit()
