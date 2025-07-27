@@ -53,7 +53,9 @@ def download_file_http(direct_url, output_folder='.'):
     print(f"Downloaded file saved as: {local_filename}")
 
 def read_urls_from_file(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
+    with open(filename, 'r', encoding='latin1') as file:
+        # for line in file:
+        #     print(f"Reading URL: {line.strip()}")
         urls = [line.strip() for line in file if line.strip()]
     return urls
 
